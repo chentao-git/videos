@@ -23,7 +23,7 @@ public class RegistLoginController {
 
 	@ApiOperation(value = "用户注册",notes = "用户注册接口")
 	@PostMapping("/regist")
-	public IMoocJSONResult Hello(@RequestBody Users users) throws Exception{
+	public IMoocJSONResult regist(@RequestBody Users users) throws Exception{
 		// 判断用户名 密码不为空
 		if (StringUtils.isBlank(users.getUsername()) || StringUtils.isBlank(users.getPassword())){
 			return IMoocJSONResult.errorMsg("用户名和密码不能为空！");
@@ -37,13 +37,31 @@ public class RegistLoginController {
 			users.setReceiveLikeCounts(0); //我接受到的赞美/收藏 的数量
 			users.setFollowCounts(0); //我关注的人总数
 			userService.saveUser(users);
-
 		}else{
 			return IMoocJSONResult.errorMsg("用户名已经存在！");
 		}
 		// 保存用户 注册信息
+		users.setPassword("");
 
-		return null;
+		return IMoocJSONResult.ok(users);
 	}
-	
+	@ApiOperation(value = "用户登录",notes = "用户登录接口")
+	@PostMapping(value = "/login")
+	public IMoocJSONResult login(@RequestBody Users user) throws Exception{
+		String username = user.getUsername();
+		String password = user.getPassword();
+		//判断用户名密码不为空
+		if (StringUtils.isBlank(username) || StringUtils.isBlank(password)){
+			return IMoocJSONResult.errorMsg("用户名和密码不能为空！");
+		}
+		//判断用户是否存在
+		Users userResult = userService.queryUserForLogin(username,MD5Utils.getMD5Str(user.getPassword()));
+		//返回
+		if (userResult != null){
+			userResult.setPassword("");
+			return IMoocJSONResult.ok(userResult);
+		}else{
+			return IMoocJSONResult.errorMsg("用户名或者密码不正确，请重试！");
+		}
+	}
 }

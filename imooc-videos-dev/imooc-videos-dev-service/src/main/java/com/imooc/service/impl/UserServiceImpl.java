@@ -71,6 +71,12 @@ public class UserServiceImpl implements UserService {
 		userMapper.insert(user);
 	}
 
+	/**
+	 * 判断是否存在该用户
+	 * @param username
+	 * @param password
+	 * @return
+	 */
 	@Transactional(propagation = Propagation.SUPPORTS)
 	@Override
 	public Users queryUserForLogin(String username, String password) {
@@ -80,7 +86,6 @@ public class UserServiceImpl implements UserService {
 		criteria.andEqualTo("username", username);
 		criteria.andEqualTo("password", password);
 		Users result = userMapper.selectOneByExample(userExample);
-		
 		return result;
 	}
 
