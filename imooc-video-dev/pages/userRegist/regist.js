@@ -10,7 +10,7 @@ Page({
       var formObject = e.detail.value;
       var username = formObject.username;
       var password = formObject.password;
-
+      var repassword = formObject.repassword; 
       // 简单验证
       if (username.length == 0 || password.length == 0) {
         wx.showToast({
@@ -18,7 +18,14 @@ Page({
           icon: 'none',
           duration: 3000
         })
-      } else {
+      } else if(password != repassword){
+        wx.showToast({
+          title: '两次密码不一致',
+          icon: 'none',
+          duration: 3000
+        })
+        //TODO 密码框清空选中
+      }else {
         var serverUrl = app.serverUrl;
         wx.showLoading({
           title: '请等待...',
