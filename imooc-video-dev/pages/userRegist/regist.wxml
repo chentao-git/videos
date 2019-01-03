@@ -15,11 +15,18 @@
 
             <!--密码-->
             <view class="inputView">
-                <image class="keyImage" src="../resource/images/password.png"></image>
+                <image class="keyImage"          src="../resource/images/password.png"></image>
                 <label class="loginLabel">密码</label>
                 <input name="password" class="inputText" password="true" placeholder="请输入密码"/>
             </view>
-
+            <view class="line"></view>
+            <!-- -->
+            <view class="inputView">
+                <image class="nameImage" src="../resource/images/password.png"></image>
+                <label class="loginLabel">密码</label>
+                <input name='repassword' password='true' class="inputText" placeholder="请再次输入密码"/>
+            </view>
+            
             <!--按钮-->
             <view>
                 <button class="loginBtn" type="primary" form-type='submit'>注册</button>
