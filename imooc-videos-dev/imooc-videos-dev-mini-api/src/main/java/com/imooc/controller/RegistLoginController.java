@@ -1,12 +1,15 @@
 package com.imooc.controller;
 
 import com.imooc.pojo.Users;
+import com.imooc.pojo.vo.UsersVO;
 import com.imooc.service.UserService;
 import com.imooc.utils.IMoocJSONResult;
 import com.imooc.utils.MD5Utils;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.util.StringUtil;
 
+import java.util.UUID;
+
 @RestController
 @Api(value = "用户登录测试接口", tags = "注册和登录的controller")
-public class RegistLoginController {
+public class RegistLoginController extends BasicController {
 
 	@Autowired
 	private UserService userService;
@@ -43,8 +48,21 @@ public class RegistLoginController {
 		// 保存用户 注册信息
 		users.setPassword("");
 
-		return IMoocJSONResult.ok(users);
+		UsersVO usersVO = setUserRedisSessionToken(users);
+		return IMoocJSONResult.ok(usersVO);
 	}
+	//userId加默认字符串生成key，唯一标识为value存入redis中
+	public UsersVO setUserRedisSessionToken(Users userModel) {
+		//生成唯一标识
+		String uniqueToken = UUID.randomUUID().toString();
+		redis.set(USER_REDIS_SESSION + ":" + userModel.getId(), uniqueToken, 1000 * 60 * 30);
+
+		UsersVO userVO = new UsersVO();
+		BeanUtils.copyProperties(userModel, userVO);
+		userVO.setUserToken(uniqueToken);
+		return userVO;
+	}
+
 	@ApiOperation(value = "用户登录",notes = "用户登录接口")
 	@PostMapping(value = "/login")
 	public IMoocJSONResult login(@RequestBody Users user) throws Exception{
@@ -59,9 +77,18 @@ public class RegistLoginController {
 		//返回
 		if (userResult != null){
 			userResult.setPassword("");
-			return IMoocJSONResult.ok(userResult);
+			UsersVO usersVO = setUserRedisSessionToken(userResult);
+			return IMoocJSONResult.ok(usersVO);
 		}else{
 			return IMoocJSONResult.errorMsg("用户名或者密码不正确，请重试！");
 		}
+	}
+	@ApiOperation(value="用户注销", notes="用户注销的接口")
+	@ApiImplicitParam(name="userId", value="用户id", required=true,
+			dataType="String", paramType="query")
+	@PostMapping("/logout")
+	public IMoocJSONResult logout(String userId) throws Exception {
+		redis.del(USER_REDIS_SESSION + ":" + userId);
+		return IMoocJSONResult.ok();
 	}
 }
