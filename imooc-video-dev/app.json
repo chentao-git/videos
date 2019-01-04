@@ -1,15 +1,14 @@
 {
-  "pages":[
-    
+  "pages": [
+    "pages/mine/mine",
     "pages/userRegist/regist",
-    "pages/userLogin/login",
-    "pages/userLogin/index"
-         
+  
+    "pages/userLogin/login"
   ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "小慕短视频",
+    "navigationBarTitleText": "短视频",
     "navigationBarTextStyle": "black"
   },
   "debug": true

@@ -36,6 +36,7 @@ public class RegistLoginController extends BasicController {
 		// 判断用户是否存在
 		boolean usernameIsExist = userService.queryUsernameIsExist(users.getUsername());
 		if (!usernameIsExist){
+			// 保存用户 注册信息
 			users.setNickname(users.getUsername());
 			users.setPassword(MD5Utils.getMD5Str(users.getPassword()));
 			users.setFansCounts(0); //粉丝数
@@ -45,7 +46,7 @@ public class RegistLoginController extends BasicController {
 		}else{
 			return IMoocJSONResult.errorMsg("用户名已经存在！");
 		}
-		// 保存用户 注册信息
+		//返回用户信息 密码置为空
 		users.setPassword("");
 
 		UsersVO usersVO = setUserRedisSessionToken(users);
@@ -85,7 +86,7 @@ public class RegistLoginController extends BasicController {
 	}
 	@ApiOperation(value="用户注销", notes="用户注销的接口")
 	@ApiImplicitParam(name="userId", value="用户id", required=true,
-			dataType="String", paramType="query")
+			dataType="String", paramType="query")//paramType="query" 因为访问是直接？传参 直接使用"query"自动匹配对应就可以了
 	@PostMapping("/logout")
 	public IMoocJSONResult logout(String userId) throws Exception {
 		redis.del(USER_REDIS_SESSION + ":" + userId);
