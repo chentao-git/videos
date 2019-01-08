@@ -1,20 +1,16 @@
 package com.imooc.controller;
 
 import com.imooc.pojo.Users;
-import com.imooc.pojo.vo.UsersVO;
 import com.imooc.service.UserService;
 import com.imooc.utils.IMoocJSONResult;
-import com.imooc.utils.MD5Utils;
-import com.sun.tools.internal.ws.wsdl.document.jaxws.Exception;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,10 +19,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
 
 @RestController
 @Api(value = "用户业务相关接口", tags = "用户业务相关的controller")
+@RequestMapping("/user")
 public class UserController extends BasicController {
 
 	@Autowired
@@ -41,7 +37,7 @@ public class UserController extends BasicController {
 			return IMoocJSONResult.errorMsg("用户id不能为空...");
 		}
 		//文件保存的命名空间
-		String fileSpace = "D;/videos/img";
+		String fileSpace = "D:/videos/img";
 		//保存到数据的相对路径
 		String uploadPathDB = "/"+ userId +"/face";
 
