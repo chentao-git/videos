@@ -1,6 +1,7 @@
 package com.imooc.controller;
 
 import com.imooc.pojo.Users;
+import com.imooc.pojo.vo.UsersVO;
 import com.imooc.service.UserService;
 import com.imooc.utils.IMoocJSONResult;
 import io.swagger.annotations.Api;
@@ -8,6 +9,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -78,6 +80,23 @@ public class UserController extends BasicController {
 		userService.updateUserInfo(user);
 		//返回数据库相对路径
 		return IMoocJSONResult.ok(uploadPathDB);
+	}
+
+	@ApiOperation(value = "用户基础信息查询",notes = "用户基础信息查询接口")
+	@ApiImplicitParam(name="userId", value="用户id", required=true,
+			dataType="String", paramType="query")
+	@PostMapping("/query")
+	public IMoocJSONResult query(String userId) throws IOException {
+		if (StringUtils.isBlank(userId)) {
+			return IMoocJSONResult.errorMsg("用户id不能为空...");
+		}
+
+		Users userInfo = userService.queryUserInfo(userId);
+		UsersVO usersVO = new UsersVO();
+		//UsersVO中password使用 @JsonIgnore 就不会返回出去了
+		BeanUtils.copyProperties(userInfo,usersVO);
+
+		return IMoocJSONResult.ok(usersVO);
 	}
 
 

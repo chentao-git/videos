@@ -29,28 +29,38 @@ Page({
     myLikesFalg: true,
     myFollowFalg: true
   },
-
   onLoad: function (params) {
-    var me = this;
-
+    var me = this; //作用域问题将this赋值给me
     // var user = app.userInfo;
     // fixme 修改原有的全局对象为本地缓存
     var user = app.getGlobalUserInfo();
     var userId = user.id;
 
-    var publisherId = params.publisherId;
-    if (publisherId != null && publisherId != '' && publisherId != undefined) {
-      userId = publisherId;
-      me.setData({
-        isMe: false,
-        publisherId: publisherId,
-        serverUrl: app.serverUrl
-      })
-    }
-    me.setData({
-      userId: userId
-    })
-  
+    var serverUrl = app.serverUrl;
+    wx.request({
+      url: serverUrl+ '/user/query?userId='+userId,
+      method: "POST",
+      header: {
+        'content-type': 'application/json' // 默认值
+      },
+      success: function(res) {
+        console.log(res.data);
+        if (res.data.status == 200) {
+          var userInfo = res.data.data;
+          var faceUrl = "../resource/images/noneface.png";
+          if (userInfo.faceImage != null && userInfo.faceImage != '' && userInfo.faceImage != undefined) {
+            faceUrl = serverUrl + userInfo.faceImage;
+          }
+          me.setData({
+            faceUrl: faceUrl,
+            fansCounts: userInfo.fansCounts,
+            followCounts: userInfo.followCounts,
+            receiveLikeCounts: userInfo.receiveLikeCounts,
+            nickname: userInfo.nickname
+          })
+        }
+      }
+    })  
   },
   changeFace: function () {
     var me = this;
