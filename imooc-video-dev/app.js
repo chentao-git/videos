@@ -1,7 +1,7 @@
 //app.js
 App({
   // serverUrl: "http://192.168.16.220:8081",
-  serverUrl: "http://192.168.0.101:8081",
+  serverUrl: "http://192.168.0.113:8081",
   userInfo: null,
 
   setGlobalUserInfo: function(user) {

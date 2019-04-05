@@ -1,5 +1,6 @@
 package com.imooc.controller;
 
+import com.imooc.pojo.Bgm;
 import com.imooc.service.BgmService;
 import com.imooc.utils.IMoocJSONResult;
 import io.swagger.annotations.*;
@@ -19,7 +20,7 @@ import java.io.InputStream;
 @RestController
 @Api(value="视频相关业务的接口", tags= {"视频相关业务的controller"})
 @RequestMapping("/video")
-public class VideoController {
+public class VideoController extends BasicController {
     @Autowired
     private BgmService bgmService;
 
@@ -47,8 +48,6 @@ public class VideoController {
         if (StringUtils.isBlank(userId)) {
             return IMoocJSONResult.errorMsg("用户id不能为空...");
         }
-        // 文件保存的命名空间
-        String fileSpace = "D:/videos/business";
         // 保存到数据库中的相对路径
         String uploadPathDB = "/" + userId + "/video";
 
@@ -56,11 +55,12 @@ public class VideoController {
         InputStream inputStream = null;
 
         try {
+            //保存视频
             if (null != file) {
                 String fileName = file.getOriginalFilename();
                 if (StringUtils.isNotBlank(fileName)) {
                     //文件保存最终路径
-                    String finalFacePath = fileSpace + uploadPathDB + "/" + fileName;
+                    String finalFacePath = FILE_SPACE + uploadPathDB + "/" + fileName;
                     uploadPathDB += ("/" + fileName);
                     File outFile = new File(finalFacePath);
                     if (outFile.getParentFile() != null || !outFile.getParentFile().isDirectory()) {
@@ -82,7 +82,18 @@ public class VideoController {
                 fileOutputStream.flush();
                 fileOutputStream.close();
             }
-            return IMoocJSONResult.ok();
         }
+        //判断bgmID是否为空， 如果不为空就查询bgm信息
+        //合并mp4以及mp3 产生新的视频
+        if(StringUtils.isNoneBlank(bgmId)){
+            Bgm bgm = bgmService.queryByBgmId(bgmId);
+            String mp3InputPath = FILE_SPACE + bgm.getPath();
+
+        }
+
+
+
+
+        return IMoocJSONResult.ok();
     }
 }
