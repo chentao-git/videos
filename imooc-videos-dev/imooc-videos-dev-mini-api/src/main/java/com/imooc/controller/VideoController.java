@@ -1,8 +1,13 @@
 package com.imooc.controller;
 
+import com.imooc.enums.VideoStatusEnum;
 import com.imooc.pojo.Bgm;
+import com.imooc.pojo.Videos;
 import com.imooc.service.BgmService;
+import com.imooc.service.VideoService;
+import com.imooc.utils.FetchVideoCover;
 import com.imooc.utils.IMoocJSONResult;
+import com.imooc.utils.MergeVideoMp3;
 import io.swagger.annotations.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -16,13 +21,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
+import java.util.UUID;
 
 @RestController
 @Api(value="视频相关业务的接口", tags= {"视频相关业务的controller"})
 @RequestMapping("/video")
 public class VideoController extends BasicController {
+    //bgm service
     @Autowired
     private BgmService bgmService;
+    //视频service
+    @Autowired
+    private VideoService videoService;
 
     @ApiOperation(value="上传视频", notes="上传视频的接口")
     @ApiImplicitParams({
@@ -50,19 +61,32 @@ public class VideoController extends BasicController {
         }
         // 保存到数据库中的相对路径
         String uploadPathDB = "/" + userId + "/video";
+        String coverPathDB = "/" + userId + "/video";
 
         FileOutputStream fileOutputStream = null;
         InputStream inputStream = null;
-
+        //文件上传的最终保存路径
+        String finalVideoPath = "";
         try {
             //保存视频
             if (null != file) {
                 String fileName = file.getOriginalFilename();
+
+                String arrayFilenameItem[] =  fileName.split("\\.");
+                String fileNamePrefix = "";
+                for (int i = 0 ; i < arrayFilenameItem.length-1 ; i ++) {
+                    fileNamePrefix += arrayFilenameItem[i];
+                }
+//                  fix bug: 解决小程序端OK，PC端不OK的bug，原因：PC端和小程序端对临时视频的命名不同
+//                  String fileNamePrefix = fileName.split("\\.")[0];
+
                 if (StringUtils.isNotBlank(fileName)) {
                     //文件保存最终路径
-                    String finalFacePath = FILE_SPACE + uploadPathDB + "/" + fileName;
+                    finalVideoPath = FILE_SPACE + uploadPathDB + "/" + fileName;
                     uploadPathDB += ("/" + fileName);
-                    File outFile = new File(finalFacePath);
+                    coverPathDB = coverPathDB + "/" + fileNamePrefix + ".jpg";
+
+                    File outFile = new File(finalVideoPath);
                     if (outFile.getParentFile() != null || !outFile.getParentFile().isDirectory()) {
                         // 创建父文件夹
                         outFile.getParentFile().mkdirs();
@@ -89,11 +113,37 @@ public class VideoController extends BasicController {
             Bgm bgm = bgmService.queryByBgmId(bgmId);
             String mp3InputPath = FILE_SPACE + bgm.getPath();
 
+            //调用ffmpeg 合成视频
+            MergeVideoMp3 tool = new MergeVideoMp3(FFMPEG_EXE);
+            String videoInputPath = finalVideoPath;
+
+            String videoOutPutName = UUID.randomUUID().toString() + ".mp4";
+            uploadPathDB = "/" + userId + "/video" + "/" + videoOutPutName;
+            finalVideoPath = FILE_SPACE + uploadPathDB;
+            tool.convertor(videoInputPath,mp3InputPath,videoSeconds,finalVideoPath);
         }
+        System.out.println("uploadPathDB=" + uploadPathDB);
+        System.out.println("finalVideoPath=" + finalVideoPath);
 
+        //TODO 对视频进行截图 用作于封面图
+        // 对视频进行截图
+        FetchVideoCover videoInfo = new FetchVideoCover(FFMPEG_EXE);
+        videoInfo.getCover(finalVideoPath, FILE_SPACE + coverPathDB);
 
+        // 保存视频信息到数据库
+        Videos video = new Videos();
+        video.setAudioId(bgmId);
+        video.setUserId(userId);
+        video.setVideoSeconds((float)videoSeconds);
+        video.setVideoHeight(videoHeight);
+        video.setVideoWidth(videoWidth);
+        video.setVideoDesc(desc);
+        video.setVideoPath(uploadPathDB);
+        video.setCoverPath(coverPathDB); //设置封面路径
+        video.setStatus(VideoStatusEnum.SUCCESS.value);
+        video.setCreateTime(new Date());
 
-
-        return IMoocJSONResult.ok();
+        String videoId = videoService.saveVideo(video);
+        return IMoocJSONResult.ok(videoId);
     }
 }

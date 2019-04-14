@@ -79,16 +79,39 @@ Page({
           'content-type': 'application/json' // 默认值
         },
         success: function (res) {
-          // var data = JSON.parse(res.data);
+          var data = JSON.parse(res.data);
           console.log(res);
           wx.hideLoading();
           if (data.status == 200) {
             wx.showToast({
               title: '上传成功!~~',
+              icon: "success",
+              duration: 2000,
+              success:function(){
+                //延时跳转
+                setTimeout(function () {
+                  // 上传成功后跳回之前的页面
+                  wx.navigateBack({
+                    delta: 1
+                  })
+                },2000)
+              }
+            });
+          } else if (res.data.status == 502) {
+            wx.showToast({
+              title: res.data.msg,
+              duration: 2000,
+              icon: "none"
+            });
+            wx.redirectTo({
+              url: '../userLogin/login',
+            })
+          } else {
+            wx.showToast({
+              title: '上传失败!~~',
               icon: "success"
             });
-
-          }
+          } 
         }
       })
     }

@@ -10,6 +10,6 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/META-INF/resources/")
-                .addResourceLocations("file:D:/videos/business/");
+                .addResourceLocations("file:F:/videos/business/"); //项目资源文件路径映射 相当于tomcate下的service.xml 配置路径映射
     }
 }

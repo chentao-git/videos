@@ -1,7 +1,7 @@
 //app.js
 App({
   // serverUrl: "http://192.168.16.220:8081",
-  serverUrl: "http://192.168.0.113:8081",
+  serverUrl: "http://192.168.2.108:8081",
   userInfo: null,
 
   setGlobalUserInfo: function(user) {
@@ -21,17 +21,6 @@ App({
     "诱导分享",
     "引人不适",
     "过于暴力",
-
-
-
-
-
-    
-    
-    
-    
-    
-    
     "违法违纪",
     "其它原因"
   ]

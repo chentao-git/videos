@@ -6,18 +6,24 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 合并视频与bgm
+ */
 public class MergeVideoMp3 {
+
     private String ffmpegEXE;
 
-    public MergeVideoMp3(String ffmpegEXE){
+    public MergeVideoMp3(String ffmpegEXE) {
         super();
         this.ffmpegEXE = ffmpegEXE;
     }
-    //视频合并
-    public void convertor(String videoInputPath, String mp3InputPath, double seconds, String videoOutputPath) throws Exception{
-//        ffmpeg.exe -i 苏州大裤衩.mp4 -i bgm.mp3 -t 7 -y 新的视频.mp4
-        List<String> command = new ArrayList<String>();
+
+    public void convertor(String videoInputPath, String mp3InputPath,
+                          double seconds, String videoOutputPath) throws Exception {
+//		ffmpeg.exe -i 苏州大裤衩.mp4 -i bgm.mp3 -t 7 -y 新的视频.mp4
+        List<String> command = new ArrayList<>();
         command.add(ffmpegEXE);
+
         command.add("-i");
         command.add(videoInputPath);
 
@@ -29,12 +35,12 @@ public class MergeVideoMp3 {
 
         command.add("-y");
         command.add(videoOutputPath);
+
 		for (String c : command) {
 			System.out.print(c + " ");
 		}
 
-        //start 启动
-        ProcessBuilder builder = new ProcessBuilder();
+        ProcessBuilder builder = new ProcessBuilder(command);
         Process process = builder.start();
 
         InputStream errorStream = process.getErrorStream();
@@ -44,6 +50,7 @@ public class MergeVideoMp3 {
         String line = "";
         while ( (line = br.readLine()) != null ) {
         }
+
         if (br != null) {
             br.close();
         }
@@ -53,14 +60,16 @@ public class MergeVideoMp3 {
         if (errorStream != null) {
             errorStream.close();
         }
+
     }
 
-    public static void main(String[] args){
-        MergeVideoMp3 ffmpeg = new MergeVideoMp3("D:\\ffmpeg\\bin\\ffmpeg.exe");
+    public static void main(String[] args) {
+        MergeVideoMp3 ffmpeg = new MergeVideoMp3("F:\\ffmpeg\\bin\\ffmpeg.exe");
         try {
-            ffmpeg.convertor("D:\\ffmpeg\\bin\\boy.mp4", "D:\\ffmpeg\\bin\\money.mp3", 7.1, "D:\\ffmpeg\\bin\\这是通过java生产的视频.mp4");
+            ffmpeg.convertor("F:\\ffmpeg\\bin\\boy.mp4", "F:\\ffmpeg\\bin\\music.mp3", 7.1, "F:\\ffmpeg\\bin\\这是通过java生产的视频.avi");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }
