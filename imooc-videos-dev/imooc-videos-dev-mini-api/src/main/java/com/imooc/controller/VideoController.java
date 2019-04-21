@@ -8,9 +8,13 @@ import com.imooc.service.VideoService;
 import com.imooc.utils.FetchVideoCover;
 import com.imooc.utils.IMoocJSONResult;
 import com.imooc.utils.MergeVideoMp3;
+import com.imooc.utils.PagedResult;
 import io.swagger.annotations.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.n3r.idworker.IdWorker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +38,8 @@ public class VideoController extends BasicController {
     //视频service
     @Autowired
     private VideoService videoService;
+
+    private Logger logger = LoggerFactory.getLogger(IdWorker.class);
 
     @ApiOperation(value="上传视频", notes="上传视频的接口")
     @ApiImplicitParams({
@@ -146,4 +152,29 @@ public class VideoController extends BasicController {
         String videoId = videoService.saveVideo(video);
         return IMoocJSONResult.ok(videoId);
     }
+
+
+    /**
+     *
+     * @Description: 分页和搜索查询视频列表
+     * isSaveRecord：1 - 需要保存
+     * 				 0 - 不需要保存 ，或者为空的时候
+     */
+    @PostMapping(value="/showAll")
+    public IMoocJSONResult showAll(Integer page, Integer pageSize) throws Exception {
+
+        if (page == null) {
+            page = 1;
+        }
+
+        if (pageSize == null) {
+            pageSize = PAGE_SIZE;
+        }
+
+        PagedResult result = videoService.getAllVideos(page, pageSize);
+        logger.debug("result size："+ result.getRows().size());
+        System.out.print("result size："+ result.getRows().size());
+        return IMoocJSONResult.ok(result);
+    }
+
 }
