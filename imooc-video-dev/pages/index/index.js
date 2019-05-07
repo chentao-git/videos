@@ -37,6 +37,7 @@ Page({
         wx.hideNavigationBarLoading();
         //停止当前页面的当前刷新
         wx.stopPullDownRefresh();
+        
         console.log(res);
         //判断当前页的page是否是第一页，如果是第一页，那么设置videoList为空
         if (page == 1) {
@@ -59,7 +60,7 @@ Page({
   onPullDownRefresh: function(){
     //在当前导航栏的j加载动画
     wx.showNavigationBarLoading();
-    thhis.getAllVideoList(1);
+    this.getAllVideoList(1);
   },
   //下拉刷新
   onReachBottom:function(){

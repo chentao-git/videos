@@ -1,9 +1,11 @@
 {
   "pages": [
+    "pages/videoinfo/videoinfo",
     "pages/index/index",
     "pages/userLogin/login",
     "pages/chooseBgm/chooseBgm",
     "pages/mine/mine",
+    "pages/searchVideo/searchVideo",
     "pages/userRegist/regist"
   ],
   "window": {
