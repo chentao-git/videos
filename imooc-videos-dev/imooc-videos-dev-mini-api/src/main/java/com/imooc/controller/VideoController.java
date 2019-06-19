@@ -2,6 +2,7 @@ package com.imooc.controller;
 
 import com.imooc.enums.VideoStatusEnum;
 import com.imooc.pojo.Bgm;
+import com.imooc.pojo.Comments;
 import com.imooc.pojo.Videos;
 import com.imooc.service.BgmService;
 import com.imooc.service.VideoService;
@@ -17,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -161,20 +163,33 @@ public class VideoController extends BasicController {
      * 				 0 - 不需要保存 ，或者为空的时候
      */
     @PostMapping(value="/showAll")
-    public IMoocJSONResult showAll(Integer page, Integer pageSize) throws Exception {
-
+    public IMoocJSONResult showAll(@RequestBody Videos video, Integer isSaveRecord,
+                                   Integer page, Integer pageSize) throws Exception {
         if (page == null) {
             page = 1;
         }
-
         if (pageSize == null) {
             pageSize = PAGE_SIZE;
         }
-
-        PagedResult result = videoService.getAllVideos(page, pageSize);
+        PagedResult result = videoService.getAllVideos(video, isSaveRecord, page, pageSize);
         logger.debug("result size："+ result.getRows().size());
-        System.out.print("result size："+ result.getRows().size());
         return IMoocJSONResult.ok(result);
     }
 
+    /**
+     * 获取热搜词
+     * @return
+     * @throws Exception
+     */
+    @PostMapping(value="/hot")
+    public IMoocJSONResult hot() throws Exception {
+
+        return IMoocJSONResult.ok(videoService.getHotwords());
+    }
+
+    @PostMapping("/saveComment")
+    public  IMoocJSONResult saveComment(@RequestBody Comments comment) throws Exception{
+        videoService.saveComment(comment);
+        return IMoocJSONResult.ok();
+    }
 }

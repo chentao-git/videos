@@ -1,5 +1,6 @@
 // 1 导入js文件
 var WxSearch = require('../../wxSearchView/wxSearchView.js');
+const app = getApp()
 
 Page({
   data: {
@@ -12,15 +13,22 @@ Page({
 
     // 查询热搜词
     var serverUrl = app.serverUrl;
-    
-    WxSearch.init(
-      that,  // 本页面一个引用
-      ['慕课网', 'imooc', "java", "小程序", 'zookeeper', 'springboot'], // 热点搜索推荐，[]表示不使用
-      [],// 搜索匹配，[]表示不使用
-      that.mySearchFunction, // 提供一个搜索回调函数
-      that.myGobackFunction //提供一个返回回调函数
-    );
+    wx.request({
+      url: serverUrl + '/video/hot',
+      method: "POST",
+      success: function(res){
+        console.log("热搜词列表："+res.data.data);
+        var hotList = res.data.data;;
 
+        WxSearch.init(
+          that,  // 本页面一个引用
+          hotList, // 热点搜索推荐，[]表示不使用
+          hotList,// 搜索匹配，[]表示不使用
+          that.mySearchFunction, // 提供一个搜索回调函数
+          that.myGobackFunction //提供一个返回回调函数
+        );
+      }
+    })
   },
   // 3 转发函数，固定部分，直接拷贝即可
   wxSearchInput: WxSearch.wxSearchInput,  // 输入变化时的操作
@@ -45,6 +53,6 @@ Page({
     wx.redirectTo({
       url: '../index/index'
     })
-
+  }
 
 })

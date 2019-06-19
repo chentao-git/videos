@@ -8,7 +8,8 @@ Page({
     videoList:[],
     //存放wx api获取的屏幕宽度，作用于图片宽度上
     screenWidth: 350,
-    serverUrl: ""
+    serverUrl: "",
+    searchContent: ""
   },
 
   onLoad: function (params) {
@@ -17,21 +18,38 @@ Page({
     me.setData({
       screenWidth: screenWidth,
     });
+    //搜索内容
+    var searchContent = params.search;
+    var isSaveRecord = params.isSaveRecord;
+    //0 热搜词不需要保存 ，或者为空的时候 1 - 需要保存
+    if (isSaveRecord == null || isSaveRecord == '' || isSaveRecord == undefined) {
+      isSaveRecord = 0;
+    }
+
+    me.setData({
+      searchContent: searchContent,
+    });
     //获取当前分页数
     var page = me.data.page;
-    me.getAllVideoList(page);
+    me.getAllVideoList(page, isSaveRecord);
 
   },
-  getAllVideoList: function (page){
+  getAllVideoList: function (page, isSaveRecord){
     var me = this;
     var serverUrl = app.serverUrl;
     wx.showLoading({
       title: '请等待，加载中...',
     })
+    //搜索内容
+    var searchContent = me.data.searchContent;
+
     //发起请求
     wx.request({
-      url: serverUrl + '/video/showAll?page=' + page,
+      url: serverUrl + '/video/showAll?page=' + page + "&isSaveRecord=" + isSaveRecord,
       method: "POST",
+      data: {
+        videoDesc: searchContent
+      },
       success: function (res) {
         wx.hideLoading();
         wx.hideNavigationBarLoading();
@@ -60,7 +78,7 @@ Page({
   onPullDownRefresh: function(){
     //在当前导航栏的j加载动画
     wx.showNavigationBarLoading();
-    this.getAllVideoList(1);
+    this.getAllVideoList(1,0);
   },
   //下拉刷新
   onReachBottom:function(){
@@ -76,7 +94,17 @@ Page({
       return;
     }
     var page = currentPage +1;
-    me.getAllVideoList(page);
+    me.getAllVideoList(page, 0);
 
+  },
+  showVideoInfo: function (e) {//视频详情页
+    var me = this;
+    var videoList = me.data.videoList;
+    var arrindex = e.target.dataset.arrindex;
+    var videoInfo = JSON.stringify(videoList[arrindex]);
+
+    wx.redirectTo({
+      url: '../videoinfo/videoinfo?videoInfo=' + videoInfo
+    })
   }
 })
